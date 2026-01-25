@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { adminDb } from "@/lib/firebaseAdmin"; // サーバーサイド用Firestore
-import { LOGIC_PROMPT } from "@/lib/prompts";
+import { LOGIC_PROMPT } from "@/lib/prompts"; // デフォルトのプロンプト
 
 // APIキーの準備
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
@@ -18,38 +18,49 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required data" }, { status: 400 });
     }
 
-    // 1. Gemini Flash latestモデルの準備
+    let systemPrompt = LOGIC_PROMPT; // デフォルト値
+
+    try {
+      // Firestoreの 'config/system_prompts' ドキュメントから最新のプロンプトを取得
+      const promptDoc = await adminDb.collection("config").doc("system_prompts").get();
+      if (promptDoc.exists) {
+        const data = promptDoc.data();
+        if (data?.prompt) {
+          systemPrompt = data.prompt;
+          console.log("%%%%API: Firestoreから最新プロンプトをロードしました");
+        }
+      }
+    } catch (e) {
+      console.warn("%%%%API: プロンプト取得失敗。デフォルトを使用します。", e);
+    }
+
+    // Gemini Flash latestモデルの準備
     const model = genAI.getGenerativeModel({ 
       model: "gemini-flash-latest",
-      // Markdownテキストを生成するため、JSONモードはOFFにします
     });
 
-    // 2. ユーザープロンプト（今回のデータ + 過去の文脈）の作成
-    // システムプロンプト(INABA_LOGIC_PROMPT)は別途Gemini側で処理されますが、
-    // 確実性を高めるため、ここではユーザーメッセージの冒頭に指示を含める構成にします。
+    // ユーザープロンプトの作成
     const userPrompt = `
-${LOGIC_PROMPT}
+      ${systemPrompt}
 
-=========================================
-【今回のスコアデータ】
-${JSON.stringify(scoreData, null, 2)}
+      =========================================
+      【今回のスコアデータ】
+      ${JSON.stringify(scoreData, null, 2)}
 
-${pastSummaries ? pastSummaries : "※過去のデータはありません。"}
-=========================================
+      ${pastSummaries ? pastSummaries : "※過去のデータはありません。"}
+      =========================================
 
-上記データに基づき、マークダウン形式でレポートを作成してください。
-`;
+      上記データに基づき、マークダウン形式でレポートを作成してください。
+      `;
 
     console.log("%%%%API: Geminiへ分析リクエスト送信");
 
-    // 3. Geminiへ送信
     const result = await model.generateContent(userPrompt);
     const responseText = result.response.text();
 
     console.log("%%%%API: 分析完了。Firestoreへ保存します。");
 
-    // 4. Firestoreへ保存 (analysis_result フィールドを追加)
-    // パス: users/{userId}/scores/{scoreId}
+    // Firestoreへ保存
     await adminDb
       .collection("users")
       .doc(userId)
@@ -57,13 +68,12 @@ ${pastSummaries ? pastSummaries : "※過去のデータはありません。"}
       .doc(scoreId)
       .update({
         analysis_result: responseText,
-        analyzedAt: new Date(), // 分析時刻
-        status: "analyzed"      // ステータス更新
+        analyzedAt: new Date(),
+        status: "analyzed"
       });
 
     console.log("%%%%API: 保存完了");
 
-    // フロントエンドにレポートを返す
     return NextResponse.json({ result: responseText });
 
   } catch (error) {
