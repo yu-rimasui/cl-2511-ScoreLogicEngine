@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useLiff } from "@/app/context/LiffContext";
+import { useLiff } from "@/context/LiffContext";
 import RegisterScore from "@/components/RegisterScore";
 
 export default function Home() {

@@ -78,7 +78,7 @@ export const useRegisterScore = () => {
   const saveScore = async () => {
     if (!ocrResult || !auth.currentUser) {
       alert("ログインしていないか、データがありません");
-      return;
+      return null;
     }
     
     setLoading(true);
@@ -86,20 +86,19 @@ export const useRegisterScore = () => {
       const uid = auth.currentUser.uid;
       // ユーザーごとのサブコレクション 'scores' に保存
       // パス: users/{uid}/scores/{docId}
-      await addDoc(collection(db, "users", uid, "scores"), {
+      const docRef = await addDoc(collection(db, "users", uid, "scores"), {
         ...ocrResult,
         createdAt: serverTimestamp(),
       });
       
-      alert("スコアを保存しました！");
-      // 保存後の処理（リセットなど）
-      setFile(null);
-      setPreviewUrl(null);
-      setOcrResult(null);
+      // alert("スコアを保存しました！");
+
+      return docRef.id; // 保存したドキュメントIDを返す
 
     } catch (error) {
       console.error("Save Error:", error);
       alert("保存に失敗しました");
+      return null;
     } finally {
       setLoading(false);
     }
@@ -112,7 +111,7 @@ export const useRegisterScore = () => {
     ocrResult,
     handleFileSelect,
     executeOcr,
-    updateScoreData, // 追加: 修正用
-    saveScore,       // 追加: 保存用
+    updateScoreData,
+    saveScore,
   };
 };

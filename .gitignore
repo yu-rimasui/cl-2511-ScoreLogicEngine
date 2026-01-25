@@ -31,3 +31,7 @@ pnpm-debug.log*
 
 # vercel
 .vercel
+
+# テストファイル
+app/test
+components/DebugSeeder.tsx

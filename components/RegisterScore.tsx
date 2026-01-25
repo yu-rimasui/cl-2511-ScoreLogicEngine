@@ -2,12 +2,14 @@
 
 import React, { useRef } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useRegisterScore } from "@/hooks/useRegisterScore";
-// 拡大縮小ライブラリのインポート
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 
 export default function RegisterScore() {
+  const router = useRouter();
+
   const { 
     file, 
     previewUrl, 
@@ -70,6 +72,18 @@ const handleHoleChange = (index: number, field: "score" | "putts", value: string
       !h.score || h.score < 1 || h.score > 15 || 
       h.putts === null || h.putts === undefined || h.putts < 0 || h.putts > 7
     );
+
+  const handleSaveAndRedirect = async () => {
+    // saveScoreを実行し、IDを受け取る
+    const scoreId = await saveScore();
+    
+    // IDが返ってきたら（保存成功したら）画面遷移
+    if (scoreId) {
+      // AnalyzeScore.tsx (実体は app/result/page.tsx) へ遷移
+      // クエリパラメータでIDを渡す
+      router.push(`/result?scoreId=${scoreId}`);
+    }
+  };
 
   // ▼ 表示モード切り替え ▼
   if (ocrResult) {
@@ -211,16 +225,15 @@ const handleHoleChange = (index: number, field: "score" | "putts", value: string
           {/* === 固定フッター：保存ボタン === */}
           <div className="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur border-t border-stone-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20">
             <button
-              onClick={saveScore}
-              // ローディング中、またはエラーがある場合は押せない
+              onClick={handleSaveAndRedirect}
               disabled={loading || hasError}
               className={`w-full py-3 rounded-sm font-semibold tracking-widest shadow-md transition-colors text-sm ${
-                loading || hasError
+                hasError
                   ? "bg-red-50 text-red-600 cursor-not-allowed" // エラー時のスタイル
                   : "bg-emerald-900 text-white hover:bg-emerald-800" // 通常時
               }`}
             >
-              {loading ? "SAVING..." : hasError ? "PLEASE FIX ERRORS" : "CONFIRM & SAVE"}
+              {loading ? "SENDING..." : hasError ? "PLEASE FIX ERRORS" : "CONFIRM"}
             </button>
           </div>
 
@@ -235,7 +248,7 @@ const handleHoleChange = (index: number, field: "score" | "putts", value: string
       <div className="text-center space-y-3">
         <h1 className="text-2xl font-serif text-emerald-950 tracking-widest">SCORE CARD</h1>
         <div className="h-0.5 w-12 bg-emerald-800 mx-auto opacity-80"></div>
-        <p className="text-xs text-stone-500 font-medium tracking-wider uppercase">Upload & Register</p>
+        <p className="text-xs text-stone-500 font-medium tracking-wider uppercase">Upload</p>
       </div>
 
       <div className="w-full space-y-6">

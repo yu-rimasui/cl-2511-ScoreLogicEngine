@@ -2,8 +2,8 @@ import React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "../styles/globals.css"
-import { GolfProvider } from "./context/GolfContext"
-import { LiffProvider } from "./context/LiffContext"
+import { GolfProvider } from "../context/GolfContext"
+import { LiffProvider } from "../context/LiffContext"
 
 const inter = Inter({ subsets: ["latin"] })
 
