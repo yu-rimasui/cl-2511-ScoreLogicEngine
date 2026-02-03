@@ -1,18 +1,7 @@
 import { useState } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
-
-// データ型定義
-export interface ScoreData {
-  course_name?: string;
-  date?: string;
-  total_score?: number;
-  holes?: Array<{
-    number: number;
-    score: number;
-    putts?: number;
-  }>;
-}
+import { ScoreData } from "@/types/score";
 
 export const useRegisterScore = () => {
   const [file, setFile] = useState<File | null>(null);

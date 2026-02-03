@@ -1,19 +1,7 @@
 import { useState } from "react";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
-
-// スコアデータの型定義 (useRegisterScoreと同じものを使用)
-// 実際は types.ts などで共有するのがベストですが、ここでは簡易的に定義
-interface ScoreData {
-  total_score?: number;
-  date?: string;
-  course_name?: string;
-  holes?: Array<{
-    number: number;
-    score: number;
-    putts?: number;
-  }>;
-}
+import { ScoreData } from "@/types/score";
 
 export const useAnalysis = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);

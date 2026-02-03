@@ -7,7 +7,7 @@ import { db, auth } from "@/lib/firebase";
 import { useAnalysis } from "@/hooks/useAnalysis";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ScoreData } from "@/hooks/useRegisterScore";
+import { ScoreData } from "@/types/score";
 
 interface AnalyzeScoreProps {
   scoreId: string;
@@ -18,7 +18,7 @@ export default function AnalyzeScore({ scoreId }: AnalyzeScoreProps) {
   const { isAnalyzing, executeAnalysis } = useAnalysis();
   
   const [loadingData, setLoadingData] = useState(true);
-  const [scoreData, setScoreData] = useState<ScoreData>({});
+  const [scoreData, setScoreData] = useState<ScoreData | null>(null);
   const [resultMarkdown, setResultMarkdown] = useState<string | null>(null);
 
   // 1. 初回ロード時: Firestoreからデータを取得
@@ -31,7 +31,7 @@ export default function AnalyzeScore({ scoreId }: AnalyzeScoreProps) {
         
         if (snap.exists()) {
           const data = snap.data();
-          setScoreData(data);
+          setScoreData(data as ScoreData);
           // 既に分析済みなら結果をセット
           if (data.analysis_result) {
             setResultMarkdown(data.analysis_result);

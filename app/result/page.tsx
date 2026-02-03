@@ -11,7 +11,7 @@ function ResultContent() {
   const { isLoggedIn } = useLiff();
 
   if (!isLoggedIn) {
-    return <div className="p-10 text-center">ログインが必要です</div>;
+    return <div className="p-10 text-center">ログインステータス確認中...</div>;
   }
 
   if (!scoreId) {

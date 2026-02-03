@@ -34,4 +34,6 @@ pnpm-debug.log*
 
 # テストファイル
 app/test
-components/DebugSeeder.tsx
+app/api/test-analyze
+
+memo.txt
