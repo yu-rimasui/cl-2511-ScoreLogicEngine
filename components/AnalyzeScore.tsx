@@ -153,7 +153,7 @@ export default function AnalyzeScore({ scoreId }: AnalyzeScoreProps) {
                 onClick={() => router.push("/")}
                 className="text-emerald-900 text-sm font-bold border-b border-emerald-900 pb-0.5 hover:opacity-70 transition-opacity"
               >
-                BACK TO TOP
+                BACK TO HOME
               </button>
             </div>
           </div>

@@ -33,7 +33,3 @@ pnpm-debug.log*
 .vercel
 
 # テストファイル
-app/test
-app/api/test-analyze
-
-memo.txt

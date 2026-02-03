@@ -168,7 +168,7 @@ export default function RegisterScore() {
                     {/* セクションヘッダー (OUT / IN など) */}
                     {showSectionHeader && (
                       <div className="bg-emerald-50/80 text-emerald-800 text-[10px] font-bold px-3 py-1 border-b border-stone-100 flex justify-between items-center">
-                        <span>{getSectionName(hole.play_order)} COURSE</span>
+                        <span>{getSectionName(hole.play_order)}</span>
                         <span className="text-[9px] opacity-70">Hole {hole.play_order}-{hole.play_order + 8}</span>
                       </div>
                     )}

@@ -21,6 +21,7 @@ export const useRegisterScore = () => {
   // データの修正（ユーザーが入力フォームで値を書き換えた時に呼ぶ）
   const updateScoreData = (newData: ScoreData | null) => {
     setOcrResult(newData);
+    console.log(ocrResult);
   };
 
   // OCR実行
