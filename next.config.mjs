@@ -7,7 +7,6 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    allowDevOrigins: ["janiyah-prelatic-anopisthographically.ngrok-free.dev"],
   },
 }
 

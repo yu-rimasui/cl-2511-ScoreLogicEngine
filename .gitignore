@@ -32,4 +32,5 @@ pnpm-debug.log*
 # vercel
 .vercel
 
-# テストファイル
+# firabase
+.firebase
