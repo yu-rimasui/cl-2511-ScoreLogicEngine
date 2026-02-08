@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { adminDb } from "@/lib/firebaseAdmin"; // サーバーサイド用Firestore
 import { LOGIC_PROMPT } from "@/lib/prompts"; // デフォルトのプロンプト
+import { calculateStats, formatStatsForPrompt } from "@/lib/calculations";
 
 // APIキーの準備
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
@@ -12,6 +13,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { scoreData, pastSummaries, userId, scoreId } = body;
+
+    // 計算実行
+    const stats = calculateStats(scoreData);
+    const statsText = formatStatsForPrompt(stats);
 
     // バリデーション
     if (!scoreData || !userId || !scoreId) {
@@ -47,6 +52,8 @@ export async function POST(req: NextRequest) {
       【今回のスコアデータ】
       ${JSON.stringify(scoreData, null, 2)}
 
+      ${statsText}
+
       ${pastSummaries ? pastSummaries : "※過去のデータはありません。"}
       =========================================
 
@@ -68,6 +75,7 @@ export async function POST(req: NextRequest) {
       .doc(scoreId)
       .update({
         analysis_result: responseText,
+        stats: stats,
         analyzedAt: new Date(),
         status: "analyzed"
       });
